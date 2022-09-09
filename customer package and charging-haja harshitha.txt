@@ -1,0 +1,284 @@
+package com.bean;
+
+public class report {
+	
+
+	
+
+		private int billnumber;
+		private String customername;
+		private String settopbox;
+		private String packagename;
+		private int packagecost;
+		private int othercharges;
+		private int tax;
+		private int totalamount;
+		public report(int billnumber, String customername, String settopbox, String packagename, int packagecost,
+				int othercharges, int tax, int totalamount) {
+			super();
+			this.billnumber = billnumber;
+			this.customername = customername;
+			this.settopbox = settopbox;
+			this.packagename = packagename;
+			this.packagecost = packagecost;
+			this.othercharges = othercharges;
+			this.tax = tax;
+			this.totalamount = totalamount;
+		}
+		public int getBillnumber() {
+			return billnumber;
+		}
+		public void setBillnumber(int billnumber) {
+			this.billnumber = billnumber;
+		}
+		public String getCustomername() {
+			return customername;
+		}
+		public void setCustomername(String customername) {
+			this.customername = customername;
+		}
+		public String getSettopbox() {
+			return settopbox;
+		}
+		public void setSettopbox(String settopbox) {
+			this.settopbox = settopbox;
+		}
+		public String getPackagename() {
+			return packagename;
+		}
+		public void setPackagename(String packagename) {
+			this.packagename = packagename;
+		}
+		public int getPackagecost() {
+			return packagecost;
+		}
+		public void setPackagecost(int packagecost) {
+			this.packagecost = packagecost;
+		}
+		public int getOthercharges() {
+			return othercharges;
+		}
+		public void setOthercharges(int othercharges) {
+			this.othercharges = othercharges;
+		}
+		public int getTax() {
+			return tax;
+		}
+		public void setTax(int tax) {
+			this.tax = tax;
+		}
+		public int getTotalamount() {
+			return totalamount;
+		}
+		public void setTotalamount(int totalamount) {
+			this.totalamount = totalamount;
+		}
+		
+	
+		
+			
+		
+		
+	}
+
+package com.dao;
+
+import java.sql.*;
+import java.util.*;
+
+import com.bean.report;
+
+public class reportdao {
+	
+
+	
+	public void displayRecords(Connection connection) throws SQLException
+	{
+		String sql = "select billnumber,customername,settopbox,packagename,packagecost,othercharges,tax,totalamount from bill";
+		Statement stmpt = connection.createStatement();
+		
+		ResultSet resultObj = stmpt.executeQuery(sql);
+		
+		while(resultObj.next())
+		{
+			System.out.println(String.format("Bill Number: %d", resultObj.getInt("billnumber")));
+			System.out.println(String.format("CustomerName: %s", resultObj.getString("customername")));
+			System.out.println(String.format("settopbox: %d", resultObj.getInt("settopbox")));
+			System.out.println(String.format("packagename: %s", resultObj.getString("packagename")));
+			System.out.println(String.format("packagecost: %d", resultObj.getInt("packagecost")));
+			System.out.println(String.format("othercharges: %d", resultObj.getInt("othercharges")));
+			System.out.println(String.format("tax: %d", resultObj.getInt("tax")));
+			System.out.println(String.format("totalamount: %d", resultObj.getInt("totalamount")));
+		}
+	}
+	
+	public void createTable(Connection connection) throws SQLException
+	{
+		String sql = "create table bill (billnumber int, customername varchar(30), settopbox varchar(30), packagename varchar(30),packagecost int,othercharges int,tax int,totalamount int)";
+		Statement stmt = connection.createStatement();
+		
+		stmt.execute(sql);
+	}
+	
+	public int insertData(Connection connection, report e) throws SQLException
+	{
+		String sql = "insert into bill (billnumber,customername,settopbox,packagename,packagecost,othercharges,tax,totalamount) values (?,?,?,?,?,?,?,?)";
+		PreparedStatement pstmt = connection.prepareStatement(sql);
+		pstmt.setInt(1, e.getBillnumber());
+		pstmt.setString(2, e.getCustomername());
+		pstmt.setString(3, e.getSettopbox());
+		pstmt.setString(4, e.getPackagename());
+		pstmt.setInt(5, e.getPackagecost());
+		pstmt.setInt(6, e.getOthercharges());
+		pstmt.setInt(7, e.getTax());
+		pstmt.setInt(8, e.getTotalamount());
+		
+		int rows=pstmt.executeUpdate();
+		return rows;
+	}
+	
+	public int updateData(Connection connection,String customername,String settopbox,String packagename,int packagecost,int othercharges,int tax,int totalamount,int billnumber) throws SQLException
+	{
+		String sql="update bill set customername=?,settopbox=?,packagename=?,packagecost=?,othercharges=?,tax=?,totalamount=? where billnumber=?";
+		PreparedStatement ps=connection.prepareStatement(sql);
+		
+		ps.setString(1, customername);
+		ps.setString(2, settopbox);
+		ps.setString(3, packagename);
+		ps.setInt(4, packagecost);
+		ps.setInt(5, othercharges);
+		ps.setInt(6, tax);
+		ps.setInt(7, totalamount);
+		ps.setInt(8, billnumber);
+		int updated=ps.executeUpdate();
+		return updated;
+		
+		
+	}
+	
+	public void deleteData(Connection connection, int billnumber) throws SQLException
+	{
+		String sql = "delete from bill where billnumber = ?";
+		PreparedStatement pstmt = connection.prepareStatement(sql);
+		pstmt.setInt(1, billnumber);
+		pstmt.execute();
+	}
+	
+
+}
+
+
+
+
+
+package com.tester;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+
+import com.bean.report;
+import com.dao.reportdao;
+
+public class reporttester {
+
+	public static void main(String[] args) throws SQLException {
+		// TODO Auto-generated method stub
+		
+		String jdbcURL = "jdbc:derby:testdb4;create=true";
+		Connection connection = null;
+		connection = DriverManager.getConnection(jdbcURL);
+		System.out.println("The connection is established");
+		
+		reportdao dao=new reportdao();
+		Scanner sc = new Scanner(System.in);
+		
+		//dao.createTable(connection);
+		
+		while(true)
+		{
+			System.out.println("Menu");
+			System.out.println("1. Display\n2. Insert\n3. Delete\n4. Update");
+			
+			switch(Integer.parseInt(sc.nextLine()))
+			{
+				case 1: 
+					dao.displayRecords(connection);
+				break;
+				
+				case 2: 
+					System.out.print("Enter your billnumber: ");
+					int billnumber = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your customer Name: ");
+					String customername = sc.nextLine();
+					System.out.print("\nEnter your settopbox: ");
+					String settopbox = (sc.nextLine());
+					System.out.print("\nEnter your packagename: ");
+					String packagename = (sc.nextLine());
+					System.out.print("\nEnter your packagecost: ");
+					int packagecost = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your othercharges: ");
+					int othercharges = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your tax: ");
+					int tax = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your toatlamount: ");
+					int totalamount = Integer.parseInt(sc.nextLine());
+					report e1=new report(billnumber,customername,settopbox,packagename,packagecost,othercharges,tax,totalamount);
+					System.out.println(dao.insertData(connection,e1));
+				break;
+				
+				case 3:
+					System.out.print("Enter your billnumber: ");
+					billnumber = Integer.parseInt(sc.nextLine());
+					dao.deleteData(connection, billnumber);
+				break;	
+				case 4:
+					
+					
+					System.out.print("\nEnter your customer Name: ");
+					String c = sc.nextLine();
+					System.out.print("\nEnter your settopbox: ");
+					String s = (sc.nextLine());
+					System.out.print("\nEnter your packagename: ");
+					String p = (sc.nextLine());
+					System.out.print("\nEnter your packagecost: ");
+					int pc = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your othercharges: ");
+					int o= Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your tax: ");
+					int t = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your toatlamount: ");
+					int ta = Integer.parseInt(sc.nextLine());
+					System.out.print("\nEnter your billnumber: ");
+					int b = Integer.parseInt(sc.nextLine());
+
+					
+					
+					dao.updateData(connection,c,s,p,pc,o,t,ta,b);
+					break;
+					
+				
+					
+			}
+			
+			System.out.println("Press e to exit!");
+			if(sc.nextLine().equals("e"))
+			{
+				break;
+			}
+		}
+		
+		connection.close();
+
+	}
+
+}
+
+
+
+
+
+
+
